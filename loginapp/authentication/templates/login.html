@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in</title>
+  <style>
+    :root { --mint: #7ef0c0; --ink: #eafff6; --soft: #a9c9bd; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #04140f;
+    }
+
+    /* Background: aurora glow made with CSS only */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(40% 40% at 20% 25%, rgba(30, 200, 140, .45), transparent 70%),
+        radial-gradient(35% 35% at 80% 20%, rgba(40, 120, 220, .35), transparent 70%),
+        radial-gradient(45% 45% at 70% 85%, rgba(20, 170, 120, .35), transparent 70%),
+        radial-gradient(30% 30% at 10% 85%, rgba(90, 80, 220, .28), transparent 70%);
+      filter: blur(30px);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, .12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      -webkit-mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
+      mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
+    }
+    @keyframes drift {
+      from { transform: translate3d(-2%, -1%, 0) scale(1); }
+      to   { transform: translate3d(2%, 2%, 0) scale(1.08); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(440px, 100%);
+      padding: clamp(28px, 6vw, 44px) clamp(22px, 6vw, 40px);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .14);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 { font-size: clamp(1.8rem, 5vw, 2.3rem); font-weight: 700; letter-spacing: -.02em; margin-bottom: 8px; }
+    .sub { color: var(--soft); line-height: 1.6; margin-bottom: 28px; }
+
+    .error {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: .95rem;
+      color: #ffd6d6;
+      background: rgba(255, 90, 90, .14);
+      border: 1px solid rgba(255, 120, 120, .35);
+    }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-size: .95rem; color: var(--soft); }
+    .input-wrap { position: relative; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      background: rgba(0, 0, 0, .28);
+      color: var(--ink);
+      font: inherit;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input::placeholder { color: rgba(169, 201, 189, .5); }
+    input:focus { outline: none; border-color: var(--mint); box-shadow: 0 0 0 4px rgba(126, 240, 192, .15); }
+    #password { padding-right: 70px; }
+
+    .toggle {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      padding: 6px 10px; border: 0; border-radius: 8px;
+      background: transparent; color: var(--mint);
+      font: inherit; font-size: .9rem; cursor: pointer;
+    }
+    .toggle:focus-visible { outline: 2px solid var(--mint); }
+
+    .submit {
+      width: 100%;
+      margin-top: 8px;
+      padding: 15px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #7ef0c0, #38c996);
+      color: #04281c;
+      font: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(56, 201, 150, .35);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .submit:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(56, 201, 150, .5); }
+    .submit:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+    .foot { margin-top: 22px; text-align: center; color: var(--soft); font-size: .95rem; }
+    .foot a { color: var(--mint); font-weight: 600; text-decoration: none; }
+    .foot a:hover { text-decoration: underline; }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before { animation: none; }
+      .submit { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Welcome back</h1>
+    <p class="sub">Log in with your username or Gmail address.</p>
+
+
+    <form method="post" action="">
+
+        {% csrf_token %}
+
+      <div class="field">
+        <label for="identifier">Username or Gmail</label>
+        <input type="text" id="identifier" name="username" placeholder="Username or yourname@gmail.com" autocomplete="username" required>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+          <button type="button" class="toggle" id="toggle" aria-label="Show password">Show</button>
+        </div>
+      </div>
+
+      <button type="submit" class="submit">Log in</button>
+    </form>
+
+    <p class="foot">New here? <a href="/register/">Create an account</a></p>
+  </main>
+
+  <script>
+    // Show / hide password
+    var pass = document.getElementById("password");
+    var btn = document.getElementById("toggle");
+    btn.addEventListener("click", function () {
+      var hidden = pass.type === "password";
+      pass.type = hidden ? "text" : "password";
+      btn.textContent = hidden ? "Hide" : "Show";
+      btn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+    });
+  </script>
+</body>
+</html>

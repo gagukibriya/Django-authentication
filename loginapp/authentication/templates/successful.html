@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login successful</title>
+  <title>Authenticated | Django Authentication Project</title>
   <style>
-    :root { --mint: #7ef0c0; --ink: #eafff6; --soft: #a9c9bd; }
+    @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+    :root { --mint: #7ef0c0; --blue: #7fb5ff; --ink: #eafff6; --soft: #a9c9bd; --line: rgba(255,255,255,.14); }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -13,98 +15,285 @@
       min-height: 100dvh;
       display: grid;
       place-items: center;
-      padding: 24px;
-      overflow: hidden;
+      padding: clamp(18px, 4vw, 48px);
       position: relative;
+      overflow-x: hidden;
       color: var(--ink);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: #04140f;
+      background: #03110c;
     }
 
-    /* Background: aurora glow made with CSS only (no image file needed) */
+    /* ---------- Background layers ---------- */
     body::before {
       content: "";
-      position: fixed;
-      inset: -20%;
+      position: fixed; inset: -20%; z-index: -3;
       background:
-        radial-gradient(40% 40% at 20% 25%, rgba(30, 200, 140, .45), transparent 70%),
-        radial-gradient(35% 35% at 80% 20%, rgba(40, 120, 220, .35), transparent 70%),
-        radial-gradient(45% 45% at 70% 85%, rgba(20, 170, 120, .35), transparent 70%),
-        radial-gradient(30% 30% at 10% 85%, rgba(90, 80, 220, .28), transparent 70%);
+        radial-gradient(40% 40% at 20% 25%, rgba(30,200,140,.45), transparent 70%),
+        radial-gradient(35% 35% at 80% 20%, rgba(40,120,220,.38), transparent 70%),
+        radial-gradient(45% 45% at 70% 85%, rgba(20,170,120,.35), transparent 70%),
+        radial-gradient(30% 30% at 10% 85%, rgba(90,80,220,.3), transparent 70%);
       filter: blur(30px);
       animation: drift 18s ease-in-out infinite alternate;
     }
-    /* Subtle dot pattern on top */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(rgba(255, 255, 255, .12) 1px, transparent 1px);
-      background-size: 28px 28px;
-      -webkit-mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
-      mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
-    }
     @keyframes drift {
-      from { transform: translate3d(-2%, -1%, 0) scale(1); }
-      to   { transform: translate3d(2%, 2%, 0) scale(1.08); }
+      from { transform: translate3d(-2%,-1%,0) scale(1); }
+      to   { transform: translate3d(2%,2%,0) scale(1.08); }
+    }
+    #net { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; }
+    .grid-fade {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 56px 56px;
+      -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 10%, transparent 72%);
+      mask-image: radial-gradient(circle at 50% 45%, #000 10%, transparent 72%);
+    }
+    .cursor-glow {
+      position: fixed; left: 0; top: 0; width: 420px; height: 420px; z-index: -1; pointer-events: none;
+      margin: -210px 0 0 -210px;
+      background: radial-gradient(circle, rgba(126,240,192,.16), transparent 65%);
+      transform: translate3d(-999px,-999px,0);
     }
 
-    .card {
-      position: relative;
-      z-index: 1;
-      width: min(560px, 100%);
-      padding: clamp(32px, 6vw, 56px) clamp(24px, 6vw, 52px);
-      text-align: center;
-      border-radius: 28px;
-      background: rgba(255, 255, 255, .06);
-      border: 1px solid rgba(255, 255, 255, .14);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12);
-      -webkit-backdrop-filter: blur(18px);
-      backdrop-filter: blur(18px);
+    /* ---------- Layout ---------- */
+    .layout {
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
     }
 
-    .icon {
-      width: 84px; height: 84px; margin: 0 auto 26px;
-      border-radius: 50%;
-      display: grid; place-items: center;
-      background: rgba(126, 240, 192, .12);
-      border: 1.5px solid rgba(126, 240, 192, .55);
-      box-shadow: 0 0 0 10px rgba(126, 240, 192, .07), 0 0 40px rgba(126, 240, 192, .35);
+    /* ---------- Left ---------- */
+    .status {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 16px 8px 12px; border-radius: 999px;
+      border: 1px solid rgba(126,240,192,.45);
+      background: rgba(126,240,192,.1);
+      color: var(--mint); font-size: .95rem; font-weight: 600;
     }
-    .icon svg { width: 42px; height: 42px; }
-    .tick {
-      fill: none; stroke: var(--mint); stroke-width: 3.2;
-      stroke-linecap: round; stroke-linejoin: round;
-      stroke-dasharray: 30; stroke-dashoffset: 30;
-      animation: draw .6s ease-out .4s forwards;
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(126,240,192,.6); }
+      70%  { box-shadow: 0 0 0 10px rgba(126,240,192,0); }
+      100% { box-shadow: 0 0 0 0 rgba(126,240,192,0); }
     }
-    @keyframes draw { to { stroke-dashoffset: 0; } }
 
     h1 {
-      font-size: clamp(1.9rem, 5vw, 2.7rem);
-      font-weight: 700;
-      letter-spacing: -.02em;
-      margin-bottom: 16px;
+      margin: 22px 0 18px;
+      font-size: clamp(2.3rem, 5.6vw, 4.1rem);
+      line-height: 1.06; letter-spacing: -.035em; font-weight: 800;
     }
-    p {
-      font-size: clamp(1rem, 2.4vw, 1.15rem);
-      line-height: 1.7;
-      color: var(--soft);
+    h1 .grad {
+      display: block;
+      background: linear-gradient(90deg, #eafff6, var(--mint), var(--blue), #eafff6);
+      background-size: 300% 100%;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+      animation: shine 7s linear infinite;
     }
+    @keyframes shine { to { background-position: 300% 0; } }
 
+    .lead { font-size: clamp(1.02rem, 1.7vw, 1.15rem); line-height: 1.75; color: var(--soft); max-width: 56ch; }
+    .lead strong { color: var(--ink); font-weight: 600; }
+    .lead + .lead { margin-top: 14px; }
+
+    .stats { display: flex; gap: clamp(18px, 3vw, 34px); margin-top: 30px; flex-wrap: wrap; }
+    .stat { padding-left: 16px; border-left: 2px solid rgba(126,240,192,.5); }
+    .stat b { display: block; font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; }
+    .stat span { font-size: .9rem; color: var(--soft); }
+
+    .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      padding: 8px 14px; border-radius: 10px; font-size: .92rem;
+      border: 1px solid var(--line); background: rgba(255,255,255,.06);
+      transition: transform .2s, border-color .2s, box-shadow .2s, background .2s;
+    }
+    .chip:hover { transform: translateY(-3px); border-color: var(--mint); background: rgba(126,240,192,.1); box-shadow: 0 8px 24px rgba(126,240,192,.2); }
+
+    /* ---------- Terminal panel ---------- */
+    .stage { perspective: 1100px; }
+    .panel {
+      --angle: 0deg;
+      position: relative;
+      border-radius: 24px;
+      background: rgba(6, 24, 18, .62);
+      box-shadow: 0 40px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.1);
+      -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+      transform-style: preserve-3d;
+      transition: transform .15s ease-out;
+      will-change: transform;
+    }
+    .panel::before {
+      content: ""; position: absolute; inset: 0; padding: 1.5px; border-radius: inherit; pointer-events: none;
+      background: conic-gradient(from var(--angle), rgba(255,255,255,.1) 0 55%, var(--mint) 78%, var(--blue) 90%, rgba(255,255,255,.1) 100%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      animation: spin 6s linear infinite;
+    }
+    @keyframes spin { to { --angle: 360deg; } }
+
+    .bar { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+    .bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+    .bar i:nth-child(1) { background: #ff6b6b; } .bar i:nth-child(2) { background: #ffd166; } .bar i:nth-child(3) { background: #5be3a4; }
+    .bar span { margin-left: 10px; font-size: .88rem; color: var(--soft); }
+
+    .term {
+      padding: 22px 22px 26px;
+      min-height: 340px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92rem; line-height: 1.9;
+    }
+    .term .ln { white-space: pre-wrap; word-break: break-word; }
+    .term .cmd { color: #d8fff0; }
+    .term .cmd::before { content: "$ "; color: var(--mint); }
+    .term .ok { color: #c9f7e3; }
+    .term .ok::before { content: "\2714  "; color: var(--mint); }
+    .term .dim { color: var(--soft); }
+    .term .final { margin-top: 12px; font-size: 1.15rem; font-weight: 700; color: var(--mint); }
+    .caret { display: inline-block; width: 9px; height: 1.05em; margin-left: 4px; vertical-align: -2px; background: var(--mint); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    @media (max-width: 880px) {
+      .layout { grid-template-columns: 1fr; }
+      .term { min-height: 300px; font-size: .86rem; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      body::before { animation: none; }
-      .tick { animation: none; stroke-dashoffset: 0; }
+      body::before, .dot, h1 .grad, .panel::before, .caret { animation: none; }
+      .panel { transition: none; }
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <div class="icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path class="tick" d="M5 12.5 L10 17.5 L19 7"/></svg>
+  <canvas id="net" aria-hidden="true"></canvas>
+  <div class="grid-fade" aria-hidden="true"></div>
+  <div class="cursor-glow" id="glow" aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <section>
+      <div class="status"><span class="dot"></span>Authenticated</div>
+      <h1>Login successful.<span class="grad">Authentication works.</span></h1>
+
+      <p class="lead">
+        This project is a <strong>user authentication system built with Python and Django</strong>.
+        If you can see this page, you logged in with a username or email and password, and the server
+        verified your credentials and started a session. This page is only reachable after that check passes.
+      </p>
+      <p class="lead">
+        I built it to practise the full login flow end to end: registration, credential validation,
+        secure password handling and session-based access.
+      </p>
+
+      <div class="stats">
+        <div class="stat"><b><span id="count">0</span> / 5</b><span>Auth checks passed</span></div>
+        <div class="stat"><b>Active</b><span>Session status</span></div>
+        <div class="stat"><b>Hashed</b><span>Password storage</span></div>
+      </div>
+
+      <div class="stack" aria-label="Technologies used">
+        <span class="chip">Python</span>
+        <span class="chip">Django</span>
+        <span class="chip">Django Auth</span>
+        <span class="chip">HTML</span>
+        <span class="chip">CSS</span>
+        <span class="chip">JavaScript</span>
+      </div>
+    </section>
+
+    <div class="stage">
+      <aside class="panel" id="panel" aria-label="Authentication log">
+        <div class="bar"><i></i><i></i><i></i><span>auth.log</span></div>
+        <div class="term" id="term"></div>
+      </aside>
     </div>
-    <h1>Login successful</h1>
-    <p>This project is a Django login functionality test site. You have logged in, which means the login is working correctly.</p>
-  </main>
+
+  </div>
+
+  <script>
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ---------- Terminal log, typed line by line ---------- */
+    var lines = [
+      { t: "POST /login/ with username or email + password", c: "cmd" },
+      { t: "Request received, form validated", c: "dim" },
+      { t: "Account found for the given username or email", c: "ok" },
+      { t: "Password checked against the stored hash", c: "ok" },
+      { t: "Credentials verified", c: "ok" },
+      { t: "Session created and cookie sent to the browser", c: "ok" },
+      { t: "Protected page reached", c: "ok" },
+      { t: "Access granted. Login works as expected.", c: "final" }
+    ];
+    var term = document.getElementById("term");
+    var countEl = document.getElementById("count");
+    var passed = 0;
+
+    function addLine(i) {
+      if (i >= lines.length) { var c = document.createElement("span"); c.className = "caret"; term.lastChild.appendChild(c); return; }
+      var d = document.createElement("div");
+      d.className = "ln " + lines[i].c;
+      term.appendChild(d);
+      var text = lines[i].t, n = 0;
+      function done() {
+        if (lines[i].c === "ok") { passed++; countEl.textContent = Math.min(passed, 5); }
+        setTimeout(function () { addLine(i + 1); }, reduce ? 0 : 260);
+      }
+      if (reduce) { d.textContent = text; done(); return; }
+      (function type() {
+        d.textContent = text.slice(0, ++n);
+        if (n < text.length) setTimeout(type, 16); else done();
+      })();
+    }
+    setTimeout(function () { addLine(0); }, 500);
+
+    /* ---------- Particle network background ---------- */
+    (function () {
+      var cv = document.getElementById("net"), ctx = cv.getContext("2d");
+      var w, h, dpr = Math.min(window.devicePixelRatio || 1, 2), pts = [], mouse = { x: -999, y: -999 };
+      function size() {
+        w = cv.width = innerWidth * dpr; h = cv.height = innerHeight * dpr;
+        var n = Math.round(Math.min(90, innerWidth * innerHeight / 18000));
+        pts = [];
+        for (var i = 0; i < n; i++) pts.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - .5) * .35 * dpr, vy: (Math.random() - .5) * .35 * dpr });
+      }
+      function frame() {
+        ctx.clearRect(0, 0, w, h);
+        var link = 130 * dpr;
+        for (var i = 0; i < pts.length; i++) {
+          var p = pts[i];
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 1.6 * dpr, 0, 6.283);
+          ctx.fillStyle = "rgba(126,240,192,.75)"; ctx.fill();
+          for (var j = i + 1; j < pts.length; j++) {
+            var q = pts[j], dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
+            if (d < link) { ctx.strokeStyle = "rgba(126,240,192," + (.22 * (1 - d / link)) + ")"; ctx.lineWidth = dpr; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+          }
+          var mx = p.x - mouse.x * dpr, my = p.y - mouse.y * dpr, md = Math.sqrt(mx * mx + my * my);
+          if (md < 160 * dpr) { ctx.strokeStyle = "rgba(127,181,255," + (.35 * (1 - md / (160 * dpr))) + ")"; ctx.lineWidth = dpr; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x * dpr, mouse.y * dpr); ctx.stroke(); }
+        }
+        if (!reduce) requestAnimationFrame(frame);
+      }
+      size(); frame();
+      addEventListener("resize", size);
+      addEventListener("mousemove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; });
+    })();
+
+    /* ---------- Cursor glow + 3D tilt on the panel ---------- */
+    var glow = document.getElementById("glow"), panel = document.getElementById("panel");
+    var canHover = window.matchMedia("(hover: hover)").matches;
+    if (canHover && !reduce) {
+      addEventListener("mousemove", function (e) {
+        glow.style.transform = "translate3d(" + e.clientX + "px," + e.clientY + "px,0)";
+        var r = panel.getBoundingClientRect();
+        var x = (e.clientX - (r.left + r.width / 2)) / innerWidth;
+        var y = (e.clientY - (r.top + r.height / 2)) / innerHeight;
+        panel.style.transform = "rotateY(" + (x * 14) + "deg) rotateX(" + (-y * 14) + "deg)";
+      });
+      document.addEventListener("mouseleave", function () { panel.style.transform = ""; });
+    }
+  </script>
 </body>
 </html>
