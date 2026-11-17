@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login successful</title>
+  <style>
+    :root { --mint: #7ef0c0; --ink: #eafff6; --soft: #a9c9bd; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #04140f;
+    }
+
+    /* Background: aurora glow made with CSS only (no image file needed) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(40% 40% at 20% 25%, rgba(30, 200, 140, .45), transparent 70%),
+        radial-gradient(35% 35% at 80% 20%, rgba(40, 120, 220, .35), transparent 70%),
+        radial-gradient(45% 45% at 70% 85%, rgba(20, 170, 120, .35), transparent 70%),
+        radial-gradient(30% 30% at 10% 85%, rgba(90, 80, 220, .28), transparent 70%);
+      filter: blur(30px);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    /* Subtle dot pattern on top */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, .12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      -webkit-mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
+      mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
+    }
+    @keyframes drift {
+      from { transform: translate3d(-2%, -1%, 0) scale(1); }
+      to   { transform: translate3d(2%, 2%, 0) scale(1.08); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(560px, 100%);
+      padding: clamp(32px, 6vw, 56px) clamp(24px, 6vw, 52px);
+      text-align: center;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .14);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+    }
+
+    .icon {
+      width: 84px; height: 84px; margin: 0 auto 26px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(126, 240, 192, .12);
+      border: 1.5px solid rgba(126, 240, 192, .55);
+      box-shadow: 0 0 0 10px rgba(126, 240, 192, .07), 0 0 40px rgba(126, 240, 192, .35);
+    }
+    .icon svg { width: 42px; height: 42px; }
+    .tick {
+      fill: none; stroke: var(--mint); stroke-width: 3.2;
+      stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 30; stroke-dashoffset: 30;
+      animation: draw .6s ease-out .4s forwards;
+    }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    h1 {
+      font-size: clamp(1.9rem, 5vw, 2.7rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: clamp(1rem, 2.4vw, 1.15rem);
+      line-height: 1.7;
+      color: var(--soft);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before { animation: none; }
+      .tick { animation: none; stroke-dashoffset: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path class="tick" d="M5 12.5 L10 17.5 L19 7"/></svg>
+    </div>
+    <h1>Login successful</h1>
+    <p>This project is a Django login functionality test site. You have logged in, which means the login is working correctly.</p>
+  </main>
+</body>
+</html>
